@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0F8B5D" />
+  <meta name="description" content="Bill Book — Offline-ready billing, UPI QR payment, and daily sales tracker for Indian shops." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Bill Book" />
+
+  <title>Bill Book — Shop Billing &amp; Daily Sales</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" href="./assets/icons/favicon.png" />
+  <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar" aria-label="Primary Navigation">
+      <div class="brand-header">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
+            <path d="M8 7h8"/>
+            <path d="M8 11h8"/>
+            <path d="M8 15h5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">Bill Book</div>
+          <div class="brand-subtitle">Smart Shop POS</div>
+        </div>
+      </div>
+
+      <div class="sidebar-shop-card" id="sidebar-shop-card">
+        <div class="sidebar-shop-name" id="sidebar-shop-name">My Shop</div>
+        <div class="sidebar-shop-upi" id="sidebar-shop-upi">UPI not configured</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-btn active" data-view="dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="billing">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          <span>New Bill</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="products">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          <span>Products</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="history">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+          <span>Bill History</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="profile">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Shop Profile</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button type="button" id="btn-install-pwa" class="btn btn-outline btn-sm btn-full hidden">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Install App
+        </button>
+        <div class="network-status" id="network-status">
+          <span class="status-dot online"></span>
+          <span class="status-text">Ready Offline</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+      <!-- Mobile Top Bar -->
+      <header class="mobile-header">
+        <div class="mobile-brand">
+          <div class="brand-logo sm" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
+              <path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="mobile-title">Bill Book</div>
+            <div class="mobile-subtitle" id="mobile-shop-name">My Shop</div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="mobile-quick-bill">
+          + New Bill
+        </button>
+      </header>
+
+      <main class="main-content">
+        <!-- ==================== VIEW: DASHBOARD ==================== -->
+        <section id="view-dashboard" class="view active" aria-labelledby="heading-dashboard">
+          <div class="page-header">
+            <div>
+              <h1 id="heading-dashboard">Daily Sales Dashboard</h1>
+              <p class="page-subtitle" id="dashboard-date-label">Today's overview</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="dash-new-bill-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Create New Bill
+            </button>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="card kpi-card">
+              <div class="kpi-label">Today's Total Sales</div>
+              <div class="kpi-value num" id="kpi-today-sales">₹0.00</div>
+              <div class="kpi-meta" id="kpi-today-meta">From saved bills today</div>
+            </div>
+            <div class="card kpi-card">
+              <div class="kpi-label">Bills Generated Today</div>
+              <div class="kpi-value num" id="kpi-today-bills">0</div>
+              <div class="kpi-meta">Invoices created today</div>
+            </div>
+            <div class="card kpi-card">
+              <div class="kpi-label">Average Bill Value</div>
+              <div class="kpi-value num" id="kpi-avg-bill">₹0.00</div>
+              <div class="kpi-meta">Today's average ticket</div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid: Chart + Summary & Recent -->
+          <div class="dashboard-grid">
+            <div class="card chart-card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">7-Day Sales Trend</h2>
+                  <p class="card-subtitle">Daily revenue over the last 7 days</p>
+                </div>
+                <div class="chart-total-badge num" id="chart-7day-total">₹0.00</div>
+              </div>
+              <div class="chart-container">
+                <canvas id="sales-chart" aria-label="7-day sales bar chart"></canvas>
+                <div id="chart-tooltip" class="chart-tooltip hidden"></div>
+              </div>
+            </div>
+
+            <div class="card summary-card">
+              <div class="card-header">
+                <h2 class="card-title">Sales Summary</h2>
+              </div>
+              <div class="summary-stats">
+                <div class="summary-row">
+                  <span>All-Time Revenue</span>
+                  <strong class="num" id="summary-alltime-sales">₹0.00</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Total Invoices</span>
+                  <strong class="num" id="summary-alltime-bills">0</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Last 7 Days Average / Day</span>
+                  <strong class="num" id="summary-7day-avg">₹0.00</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Saved Products</span>
+                  <strong class="num" id="summary-products-count">0</strong>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="card-header compact">
+                <h3 class="card-title sm">Recent Transactions</h3>
+                <button type="button" class="btn-link" id="dash-view-all-history">View All</button>
+              </div>
+              <div id="recent-transactions-list" class="recent-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW: BILL GENERATOR ==================== -->
+        <section id="view-billing" class="view" aria-labelledby="heading-billing">
+          <div class="page-header">
+            <div>
+              <h1 id="heading-billing">New Bill</h1>
+              <p class="page-subtitle">Add products or custom items, apply discount &amp; GST, and generate UPI QR</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline" id="btn-clear-bill">Clear Bill</button>
+            </div>
+          </div>
+
+          <div class="billing-layout">
+            <!-- Left Column: Product Picker & Custom Item -->
+            <div class="billing-left">
+              <div class="card">
+                <div class="card-header">
+                  <h2 class="card-title">Select Products</h2>
+                  <span class="badge badge-neutral" id="billing-product-count">0 items</span>
+                </div>
+
+                <div class="filter-bar">
+                  <div class="search-input-wrap">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="search" id="billing-product-search" class="input" placeholder="Search products by name or code..." />
+                  </div>
+                  <select id="billing-category-filter" class="input select-sm" aria-label="Filter by category">
+                    <option value="">All Categories</option>
+                  </select>
+                </div>
+
+                <div id="billing-product-grid" class="product-picker-grid"></div>
+              </div>
+
+              <!-- Manual Custom Item -->
+              <div class="card">
+                <div class="card-header">
+                  <h2 class="card-title">Add Custom Item</h2>
+                  <span class="card-subtitle">For items not in your saved list</span>
+                </div>
+                <form id="custom-item-form" class="custom-item-form" novalidate>
+                  <div class="form-group">
+                    <label for="custom-item-name">Item Name *</label>
+                    <input type="text" id="custom-item-name" class="input" placeholder="e.g., Loose Almonds 250g" required />
+                  </div>
+                  <div class="form-row-2">
+                    <div class="form-group">
+                      <label for="custom-item-price">Price (₹) *</label>
+                      <input type="number" id="custom-item-price" class="input num" placeholder="0.00" step="0.01" min="0.01" required />
+                    </div>
+                    <div class="form-group">
+                      <label for="custom-item-qty">Quantity *</label>
+                      <input type="number" id="custom-item-qty" class="input num" value="1" min="1" step="1" required />
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-outline btn-full">+ Add Custom Item to Bill</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Right Column: Current Invoice Cart & Calculations -->
+            <div class="billing-right">
+              <div class="card invoice-panel">
+                <div class="invoice-panel-header">
+                  <div>
+                    <div class="invoice-tag">INVOICE PREVIEW</div>
+                    <div class="invoice-num num" id="bill-invoice-no">INV-0000</div>
+                  </div>
+                  <div class="invoice-datetime num" id="bill-datetime">--</div>
+                </div>
+
+                <!-- Customer Details -->
+                <div class="customer-fields">
+                  <div class="form-group">
+                    <label for="bill-customer-name">Customer Name (Optional)</label>
+                    <input type="text" id="bill-customer-name" class="input input-sm" placeholder="Walk-in Customer" />
+                  </div>
+                  <div class="form-group">
+                    <label for="bill-customer-phone">Phone (Optional)</label>
+                    <input type="tel" id="bill-customer-phone" class="input input-sm num" placeholder="10-digit mobile" maxlength="15" />
+                  </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Cart Items -->
+                <div class="cart-header-row">
+                  <span>Items (<span id="cart-item-count">0</span>)</span>
+                  <span>Amount</span>
+                </div>
+                <div id="bill-cart-items" class="cart-items-list"></div>
+
+                <div class="divider"></div>
+
+                <!-- Discount & Tax Controls -->
+                <div class="bill-adjustments">
+                  <div class="adjustment-row">
+                    <label for="bill-discount-value">Discount</label>
+                    <div class="adjustment-inputs">
+                      <div class="segmented-toggle" role="group" aria-label="Discount type">
+                        <button type="button" class="seg-btn active" data-discount-type="percent">%</button>
+                        <button type="button" class="seg-btn" data-discount-type="flat">₹</button>
+                      </div>
+                      <input type="number" id="bill-discount-value" class="input input-sm num adjust-num" value="0" min="0" step="0.01" aria-label="Discount amount" />
+                    </div>
+                  </div>
+
+                  <div class="adjustment-row">
+                    <label for="bill-tax-rate">GST / Tax (%)</label>
+                    <div class="adjustment-inputs">
+                      <select id="bill-tax-preset" class="input input-sm select-xs" aria-label="GST rate preset">
+                        <option value="0">0% (No Tax)</option>
+                        <option value="5">5% GST</option>
+                        <option value="12">12% GST</option>
+                        <option value="18">18% GST</option>
+                        <option value="28">28% GST</option>
+                        <option value="custom">Custom %</option>
+                      </select>
+                      <input type="number" id="bill-tax-rate" class="input input-sm num adjust-num hidden" value="0" min="0" max="100" step="0.01" aria-label="Custom GST rate" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Totals Breakdown -->
+                <div class="totals-breakdown">
+                  <div class="total-line">
+                    <span>Subtotal</span>
+                    <span class="num" id="bill-subtotal">₹0.00</span>
+                  </div>
+                  <div class="total-line discount-line">
+                    <span>Discount <small id="bill-discount-label"></small></span>
+                    <span class="num" id="bill-discount-amount">-₹0.00</span>
+                  </div>
+                  <div class="total-line">
+                    <span>GST / Tax <small id="bill-tax-label">(0%)</small></span>
+                    <span class="num" id="bill-tax-amount">₹0.00</span>
+                  </div>
+                  <div class="total-line grand-total">
+                    <span>Final Payable</span>
+                    <span class="num" id="bill-grand-total">₹0.00</span>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-lg btn-full" id="btn-generate-bill">
+                  Generate Bill &amp; UPI QR
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW: PRODUCTS ==================== -->
+        <section id="view-products" class="view" aria-labelledby="heading-products">
+          <div class="page-header">
+            <div>
+              <h1 id="heading-products">Products</h1>
+              <p class="page-subtitle">Manage your shop inventory, prices, and categories</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline hidden" id="btn-clear-sample-products">Delete Sample Data</button>
+              <button type="button" class="btn btn-primary" id="btn-open-add-product">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                Add Product
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="filter-bar">
+              <div class="search-input-wrap">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="search" id="products-search" class="input" placeholder="Search by product name or code..." />
+              </div>
+              <select id="products-category-filter" class="input select-sm" aria-label="Filter products by category">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table" id="products-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Code / SKU</th>
+                    <th class="text-right">Price (₹)</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="products-tbody"></tbody>
+              </table>
+            </div>
+            <div id="products-empty" class="empty-state hidden">
+              <p>No products found. Add your first product to start billing faster.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW: BILL HISTORY ==================== -->
+        <section id="view-history" class="view" aria-labelledby="heading-history">
+          <div class="page-header">
+            <div>
+              <h1 id="heading-history">Bill History</h1>
+              <p class="page-subtitle">Search, filter, view, and re-share previously generated bills</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="filter-bar history-filters">
+              <div class="search-input-wrap">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="search" id="history-search" class="input" placeholder="Search by invoice no. or customer name..." />
+              </div>
+              <select id="history-date-preset" class="input select-sm" aria-label="Filter bills by date range">
+                <option value="all">All Dates</option>
+                <option value="today">Today</option>
+                <option value="7days">Last 7 Days</option>
+                <option value="custom">Specific Date</option>
+              </select>
+              <input type="date" id="history-date-picker" class="input select-sm hidden" aria-label="Pick specific date" />
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Invoice No.</th>
+                    <th>Date &amp; Time</th>
+                    <th>Customer</th>
+                    <th class="text-right">Items</th>
+                    <th class="text-right">Amount (₹)</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="history-tbody"></tbody>
+              </table>
+            </div>
+            <div id="history-empty" class="empty-state hidden">
+              <p>No matching bills found.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW: SHOP PROFILE ==================== -->
+        <section id="view-profile" class="view" aria-labelledby="heading-profile">
+          <div class="page-header">
+            <div>
+              <h1 id="heading-profile">Shop Profile</h1>
+              <p class="page-subtitle">Configure your shop details, logo, GSTIN, and UPI ID for bills &amp; QR payments</p>
+            </div>
+          </div>
+
+          <div class="profile-grid">
+            <form id="shop-profile-form" class="card profile-form" novalidate>
+              <div class="logo-upload-row">
+                <div class="shop-logo-preview" id="profile-logo-preview">
+                  <span>LOGO</span>
+                </div>
+                <div class="logo-upload-controls">
+                  <label class="btn btn-outline btn-sm" for="profile-logo-input">Upload Shop Logo</label>
+                  <input type="file" id="profile-logo-input" accept="image/*" class="hidden" />
+                  <button type="button" class="btn-link danger hidden" id="profile-logo-remove">Remove Logo</button>
+                  <p class="field-hint">PNG or JPG recommended. Stored locally in your browser.</p>
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="profile-shop-name">Shop Name *</label>
+                  <input type="text" id="profile-shop-name" class="input" placeholder="e.g., Sharma General Store" required />
+                </div>
+                <div class="form-group">
+                  <label for="profile-owner-name">Owner Name</label>
+                  <input type="text" id="profile-owner-name" class="input" placeholder="e.g., Rajesh Sharma" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-address">Shop Address</label>
+                <textarea id="profile-address" class="input" rows="2" placeholder="Shop No., Street, Area, City, PIN"></textarea>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="profile-phone">Phone Number</label>
+                  <input type="tel" id="profile-phone" class="input num" placeholder="e.g., 9876543210" maxlength="15" />
+                </div>
+                <div class="form-group">
+                  <label for="profile-gst">GST Number (Optional)</label>
+                  <input type="text" id="profile-gst" class="input uppercase" placeholder="e.g., 07AABCU9603R1ZM" maxlength="15" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-upi">UPI ID (for Payment QR Code)</label>
+                <input type="text" id="profile-upi" class="input" placeholder="e.g., myshop@okicici or 9876543210@ybl" />
+                <p class="field-hint">Used to generate exact-amount UPI QR codes on bills. Leave blank if you do not accept UPI.</p>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Shop Details</button>
+              </div>
+            </form>
+
+            <div class="card profile-info-card">
+              <h2 class="card-title">Privacy &amp; Offline Storage</h2>
+              <p class="info-text">All shop details, products, logos, and bills are saved directly on your device using browser storage. No data is ever sent to any external server.</p>
+              <div class="divider"></div>
+              <h3 class="card-title sm">UPI QR Standard</h3>
+              <p class="info-text">Bill Book generates standard NPCI UPI payment links (<code>upi://pay?...</code>) locally on your device. Customers can scan with PhonePe, Google Pay, Paytm, or BHIM to see the exact bill amount pre-filled.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav" aria-label="Mobile Navigation">
+      <button type="button" class="mobile-nav-btn active" data-view="dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Home</span>
+      </button>
+      <button type="button" class="mobile-nav-btn" data-view="billing">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        <span>Bill</span>
+      </button>
+      <button type="button" class="mobile-nav-btn" data-view="products">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        <span>Products</span>
+      </button>
+      <button type="button" class="mobile-nav-btn" data-view="history">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+        <span>History</span>
+      </button>
+      <button type="button" class="mobile-nav-btn" data-view="profile">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Shop</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== MODAL: ADD / EDIT PRODUCT ==================== -->
+  <div id="modal-product" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modal-product-title">Add Product</h2>
+        <button type="button" class="modal-close" id="modal-product-close" aria-label="Close">&times;</button>
+      </div>
+      <form id="product-form" novalidate>
+        <input type="hidden" id="product-edit-id" />
+        <div class="form-group">
+          <label for="product-name">Product Name *</label>
+          <input type="text" id="product-name" class="input" placeholder="e.g., Basmati Rice (1 kg)" required />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="product-price">Price (₹) *</label>
+            <input type="number" id="product-price" class="input num" placeholder="0.00" step="0.01" min="0.01" required />
+          </div>
+          <div class="form-group">
+            <label for="product-category">Category *</label>
+            <select id="product-category" class="input" required>
+              <option value="Groceries">Groceries</option>
+              <option value="Dairy & Bakery">Dairy &amp; Bakery</option>
+              <option value="Beverages">Beverages</option>
+              <option value="Snacks & Packaged">Snacks &amp; Packaged</option>
+              <option value="Personal Care">Personal Care</option>
+              <option value="Household">Household</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="product-code">Product Code / SKU (Optional)</label>
+          <input type="text" id="product-code" class="input" placeholder="e.g., RICE-01" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="modal-product-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="product-save-btn">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: RECEIPT & UPI QR ==================== -->
+  <div id="modal-receipt" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-receipt-title">
+    <div class="modal-card modal-receipt-card">
+      <div class="modal-header">
+        <h2 id="modal-receipt-title">Bill Receipt &amp; Payment</h2>
+        <button type="button" class="modal-close" id="modal-receipt-close" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="receipt-scroll-body">
+        <div class="receipt-paper" id="receipt-paper">
+          <div class="receipt-shop-head">
+            <img id="receipt-shop-logo" class="receipt-logo hidden" alt="Shop logo" />
+            <div class="receipt-shop-name" id="receipt-shop-name">My Shop</div>
+            <div class="receipt-shop-meta" id="receipt-shop-address"></div>
+            <div class="receipt-shop-meta" id="receipt-shop-contact"></div>
+            <div class="receipt-shop-meta" id="receipt-shop-gst"></div>
+          </div>
+
+          <div class="receipt-dash"></div>
+
+          <div class="receipt-meta-grid">
+            <div><span class="muted">Invoice:</span> <strong class="num" id="receipt-inv-no"></strong></div>
+            <div class="text-right"><span class="muted">Date:</span> <span class="num" id="receipt-date"></span></div>
+            <div id="receipt-customer-row" class="receipt-customer-row hidden"></div>
+          </div>
+
+          <div class="receipt-dash"></div>
+
+          <table class="receipt-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th class="text-right">Qty</th>
+                <th class="text-right">Rate</th>
+                <th class="text-right">Amt</th>
+              </tr>
+            </thead>
+            <tbody id="receipt-items-body"></tbody>
+          </table>
+
+          <div class="receipt-dash"></div>
+
+          <div class="receipt-totals">
+            <div class="receipt-total-row">
+              <span>Subtotal</span>
+              <span class="num" id="receipt-subtotal"></span>
+            </div>
+            <div class="receipt-total-row" id="receipt-discount-row">
+              <span id="receipt-discount-label">Discount</span>
+              <span class="num" id="receipt-discount"></span>
+            </div>
+            <div class="receipt-total-row" id="receipt-tax-row">
+              <span id="receipt-tax-label">GST</span>
+              <span class="num" id="receipt-tax"></span>
+            </div>
+            <div class="receipt-total-row final">
+              <span>TOTAL PAYABLE</span>
+              <span class="num" id="receipt-total"></span>
+            </div>
+          </div>
+
+          <div class="receipt-dash"></div>
+
+          <!-- UPI QR Section -->
+          <div class="receipt-qr-section" id="receipt-qr-section">
+            <div id="receipt-qr-valid" class="hidden">
+              <div class="qr-box">
+                <canvas id="receipt-qr-canvas"></canvas>
+              </div>
+              <div class="qr-caption">Scan to pay <strong class="num" id="receipt-qr-amount"></strong> via UPI</div>
+              <div class="qr-upi-id" id="receipt-qr-upi"></div>
+            </div>
+            <div id="receipt-qr-missing" class="qr-missing-box hidden">
+              <p><strong>No UPI ID configured.</strong> Add your UPI ID in Shop Profile to generate a payment QR code.</p>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-go-profile-upi">Configure UPI ID</button>
+            </div>
+          </div>
+
+          <div class="receipt-footer-note">Thank you for your business!</div>
+        </div>
+      </div>
+
+      <div class="modal-footer receipt-actions">
+        <button type="button" class="btn btn-outline" id="btn-download-bill-img">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Image
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-share-bill-img">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share Bill
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Locally Bundled QR Generator & App Modules -->
+  <script src="./libraries/locally-bundled-dependencies/qrcode.js"></script>
+  <script src="./assets/js/storage.js"></script>
+  <script src="./assets/js/qr.js"></script>
+  <script src="./assets/js/products.js"></script>
+  <script src="./assets/js/billing.js"></script>
+  <script src="./assets/js/history.js"></script>
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>
